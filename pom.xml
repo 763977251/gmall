@@ -15,6 +15,9 @@
         <module>gmall-pms</module>
         <module>gmall-ums</module>
         <module>gmall-oms</module>
+        <module>gmall-sms</module>
+        <module>gmall-wms</module>
+        <module>gmall-generator</module>
     </modules>
 
 </project>

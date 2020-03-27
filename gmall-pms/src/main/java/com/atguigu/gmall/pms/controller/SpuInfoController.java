@@ -38,16 +38,13 @@ public class SpuInfoController {
     @Autowired
     private SpuInfoService spuInfoService;
 
-    @ApiOperation("分页查询已发布spu商品信息")
-    @PostMapping("{status}")
-    public Resp<List<SpuInfoEntity>> querySpuInfoByStatus(@RequestBody QueryCondition condition, @PathVariable("status")Integer status){
 
-        IPage<SpuInfoEntity> spuInfoEntityIPage = this.spuInfoService.page(
-                new Query<SpuInfoEntity>().getPage(condition),
-                new QueryWrapper<SpuInfoEntity>().eq("publish_status", status));
-        return Resp.ok(spuInfoEntityIPage.getRecords());
+    @PostMapping("page")
+    public Resp<List<SpuInfoEntity>> querySpusByPage(@RequestBody QueryCondition queryCondition){
+        PageVo page = spuInfoService.queryPage(queryCondition);
+        List<SpuInfoEntity> list = (List<SpuInfoEntity>)page.getList();
+        return Resp.ok(list);
     }
-
 
     @ApiOperation("spu商品信息查询")
     @GetMapping

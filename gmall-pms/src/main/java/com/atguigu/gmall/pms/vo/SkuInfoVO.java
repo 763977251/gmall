@@ -21,7 +21,7 @@ public class SkuInfoVO extends SkuInfoEntity {
      * 2 - 有优惠，成长积分是否赠送;
      * 3 - 有优惠，购物积分是否赠送【状态位0：不赠送，1：赠送】]
      */
-    private Integer work;
+    private List<Integer> work;
 
     // 满减活动
     private BigDecimal fullPrice;

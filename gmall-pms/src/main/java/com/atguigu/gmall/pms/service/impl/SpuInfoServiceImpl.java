@@ -22,8 +22,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -55,7 +57,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Autowired
     private SkuSaleFeign skuSaleFeign;
 
+    @Autowired
     private SkuSaleAttrValueService skuSaleAttrValueService;
+
+    @Autowired
+    private AmqpTemplate amqpTemplate;
+
+    @Value("${item.rabbitmq.exchange}")
+    private String EXCHANGE_NAME;
 
     @Override
     public PageVo queryPage(QueryCondition params) {
@@ -105,6 +114,13 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
         /// 2. 保存sku相关信息
         saveSkuInfoWithSaleInfo(spuInfoVO);
+
+        sendMsg("insert", spuInfoVO.getId());
+    }
+
+    private void sendMsg(String type, Long spuId){
+
+        this.amqpTemplate.convertAndSend(EXCHANGE_NAME, "item." + type, spuId);
     }
 
     /**
@@ -156,13 +172,14 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
             // 2.3. 保存sku的规格参数（销售属性）
             List<SkuSaleAttrValueEntity> saleAttrs = skuInfoVO.getSaleAttrs();
-            saleAttrs.forEach(saleAttr -> {
-                saleAttr.setAttrName(this.attrDao.selectById(saleAttr.getId()).getAttrName());
-                saleAttr.setAttrSort(0);
-                saleAttr.setSkuId(skuId);
-            });
-            this.skuSaleAttrValueService.saveBatch(saleAttrs);
-
+            if(!CollectionUtils.isEmpty(saleAttrs)) {
+                saleAttrs.forEach(saleAttr -> {
+                    saleAttr.setAttrName(this.attrDao.selectById(saleAttr.getAttrId()).getAttrName());
+                    saleAttr.setAttrSort(0);
+                    saleAttr.setSkuId(skuId);
+                });
+                this.skuSaleAttrValueService.saveBatch(saleAttrs);
+            }
             // 3. 保存营销相关信息，需要远程调用gmall-sms
             SkuSaleDTO skuSaleDTO = new SkuSaleDTO();
             BeanUtils.copyProperties(skuInfoVO,skuSaleDTO);

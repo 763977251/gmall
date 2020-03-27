@@ -9,6 +9,7 @@ import com.atguigu.core.bean.PageVo;
 import com.atguigu.core.bean.QueryCondition;
 import com.atguigu.core.bean.Resp;
 import com.atguigu.gmall.pms.vo.AttrGroupVO;
+import com.atguigu.gmall.pms.vo.ItemGroupVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,13 @@ import com.atguigu.gmall.pms.service.AttrGroupService;
 public class AttrGroupController {
     @Autowired
     private AttrGroupService attrGroupService;
+
+    @GetMapping("item/group/{cid}/{spuId}")
+    public Resp<List<ItemGroupVO>> queryItemGroupVOByCidAndSpuId(@PathVariable("cid")Long cid, @PathVariable("spuId")Long spuId){
+
+        List<ItemGroupVO> itemGroupVOS = this.attrGroupService.queryItemGroupVOByCidAndSpuId(cid, spuId);
+        return Resp.ok(itemGroupVOS);
+    }
 
     @ApiOperation("根据三级分类id查询分组及组下的规格参数")
     @GetMapping("/withattrs/cat/{catId}")

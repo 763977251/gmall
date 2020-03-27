@@ -12,6 +12,15 @@ spring:
     password: 123456
   redis:
     host: 192.168.75.129
+  rabbitmq:
+    host: 192.168.75.129
+    port: 5672
+    virtual-host: /shang
+    username: shang
+    password: shang
+item:
+  rabbitmq:
+    exchange: GMALL-PMS-EXCHANGE
 mybatis-plus:
   mapper-locations: classpath:mapper/pms/*.xml  # 读取映射文件
   global-config:

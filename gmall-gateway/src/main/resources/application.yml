@@ -27,3 +27,49 @@ spring:
           uri: lb://sms-service
           predicates:
             - Path=/sms/**
+        - id: search-route
+          uri: lb://search-service
+          predicates:
+            - Path=/api/search/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment} # 重写前缀，去掉/api
+        - id: index-route
+          uri: lb://index-service
+          predicates:
+            - Path=/api/index/**
+          filters:
+            - RewritePath=/api(?<segment>/?.*), $\{segment}
+        - id: order-route
+          uri: lb://order-service
+          predicates:
+            - Path=/api/order/**
+          filters:
+            - RewritePath=/api(?<segment>/?.*), $\{segment}
+        - id: item-route
+          uri: lb://item-service
+          predicates:
+            - Path=/api/item/**
+          filters:
+            - RewritePath=/api(?<segment>/?.*), $\{segment}
+        - id: auth-service # 授权中心
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        - id: cart-service # 授权中心
+          uri: lb://cart-service
+          predicates:
+            - Path=/api/cart/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        - id: order-service # 订单服务
+          uri: lb://order-service
+          predicates:
+            - Path=/api/order/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+gmall:
+  jwt:
+    pubKeyPath: E:\\project\\JetBrains\\gmall\\rsa\\rsa.pub # 公钥地址
+    cookieName: GMALL_TOKEN
